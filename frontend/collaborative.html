@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Collaborative Editor — CodeVision</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<header class="nav">
+  <div class="brand">Collaborative Editor</div>
+  <div class="right"><a href="index.html">Home</a></div>
+</header>
+
+<main class="container">
+  <div class="card">
+    <div class="row">
+      <div class="badge" id="room">Room: -</div>
+      <div class="badge" id="you">You: -</div>
+      <div class="badge" id="role">Role: collaborator</div>
+    </div>
+    <div class="toolbar">
+      <select id="roleSelect" class="input" style="max-width:220px">
+        <option value="viewer">Viewer (no edits)</option>
+        <option value="editor" selected>Editor</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button class="btn" id="saveZip">Save Project (zip)</button>
+    </div>
+    <div id="collabEditor">// Shared code</div>
+    <div class="small" style="margin-top:8px" id="presence">Presence: —</div>
+  </div>
+</main>
+
+<script src="js/config.js"></script>
+<script>
+  const {WS_URL, ROOM_STORAGE_KEY, USER_STORAGE_KEY} = window.CV_CONFIG;
+  const roomId = localStorage.getItem(ROOM_STORAGE_KEY) || prompt('Room ID?','collab-demo');
+  const user = JSON.parse(localStorage.getItem(USER_STORAGE_KEY) || '{"name":"Guest"}');
+  document.getElementById('room').textContent = `Room: ${roomId}`;
+  document.getElementById('you').textContent = `You: ${user.name||'Guest'}`;
+
+  const editor = ace.edit("collabEditor");
+  editor.setTheme("ace/theme/github");
+  editor.session.setMode("ace/mode/javascript");
+  editor.setOptions({ fontSize:"14px" });
+
+  let role = 'editor';
+  const cursors = {}; // id -> {name,row,col,markerId}
+  const colors = ['#ef4444','#10b981','#f59e0b','#6366f1','#14b8a6','#f43f5e','#84cc16'];
+  const myColor = colors[Math.floor(Math.random()*colors.length)];
+
+  // permissions (client-side)
+  function applyRole(){
+    if(role==='viewer'){ editor.setReadOnly(true); }
+    else { editor.setReadOnly(false); }
+    document.getElementById('role').textContent = `Role: ${role}`;
+  }
+
+  document.getElementById('roleSelect').onchange = (e)=>{
+    role = e.target.value;
+    applyRole();
+    socket?.emit('collab:role', { roomId, role });
+  };
+
+  function updatePresence(list){
+    const label = list.map(p=>`${p.name}${p.role? ' ('+p.role+')':''}`).join(', ') || '—';
+    document.getElementById('presence').textContent = `Presence: ${label}`;
+  }
+
+  // socket collab
+  let socket=null, suppress=false;
+  function connect(){
+    try{
+      socket = io(WS_URL, { transports:['websocket'], reconnection:true });
+      socket.on('connect', ()=>{
+        socket.emit('room:join', { roomId, user:{...user, role:'collab'} });
+        socket.emit('collab:hello', { roomId, name:user.name, color:myColor, role });
+      });
+      socket.on('collab:presence', (list)=> updatePresence(list));
+      socket.on('collab:role:update', ({id, role:newRole})=>{
+        if(socket.id===id){ role=newRole; document.getElementById('roleSelect').value=newRole; applyRole(); }
+      });
+      socket.on('collab:code', ({ text })=>{
+        if(suppress) return;
+        suppress = true;
+        const pos = editor.getCursorPosition();
+        editor.setValue(text, -1);
+        editor.moveCursorToPosition(pos);
+        suppress = false;
+      });
+      socket.on('collab:cursor', ({ id, name, row, column, color })=>{
+        // remove old marker
+        const prev = cursors[id];
+        if(prev?.markerId!=null) editor.session.removeMarker(prev.markerId);
+        // add new
+        const Range = ace.require('ace/range').Range;
+        const r = new Range(row, column, row, column+1);
+        const markerId = editor.session.addMarker(r, "ace_active-line", "text", true);
+        cursors[id] = { name, row, col:column, markerId, color };
+      });
+    }catch(e){ console.warn('Socket unavailable (collab offline)', e); }
+  }
+
+  editor.session.on('change', ()=>{
+    if(suppress || role==='viewer') return;
+    const text = editor.getValue();
+    socket?.emit('collab:code', { roomId, text });
+  });
+
+  editor.selection.on('changeCursor', ()=>{
+    const pos = editor.getCursorPosition();
+    socket?.emit('collab:cursor', { roomId, row:pos.row, column:pos.column, name:user.name, color:myColor });
+  });
+
+  // Save project (single file demo -> download)
+  document.getElementById('saveZip').onclick = ()=>{
+    const blob = new Blob([editor.getValue()], {type:'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'collab_project_main.js';
+    a.click(); URL.revokeObjectURL(a.href);
+  };
+
+  applyRole();
+  connect();
+</script>
+</body>
+</html>
