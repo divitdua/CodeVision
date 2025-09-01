@@ -32,6 +32,8 @@
     <div id="collabEditor">// Shared code</div>
     <div class="small" style="margin-top:8px" id="presence">Presence: —</div>
   </div>
+  <div id="questionDisplay" style="font-size:18px; font-weight:bold; color:#333; margin-bottom:10px;"></div>
+<button class="btn" id="shareScreenBtn" style="margin-bottom:20px;">Share Screen</button>
 </main>
 
 <script src="js/config.js"></script>
@@ -126,6 +128,30 @@
 
   applyRole();
   connect();
+  // Listen for teacher's question updates
+socket.on("new-question", (question) => {
+  document.getElementById("questionDisplay").innerText = `Question: ${question}`;
+});
+
+// Screen sharing for students
+document.getElementById("shareScreenBtn").addEventListener("click", async () => {
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+    const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    socket.emit("screen-offer", { roomId, offer });
+
+    socket.on("screen-answer", async ({ answer }) => {
+      await pc.setRemoteDescription(answer);
+    });
+  } catch (err) {
+    console.error("Error sharing screen:", err);
+  }
+});
+
 </script>
 </body>
 </html>

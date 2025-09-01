@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Exam Interface - CodeVision</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+    }
+    header {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      text-align: center;
+      font-size: 1.2rem;
+      color: #fff;
+      font-weight: bold;
+    }
+    .main-container {
+      display: flex;
+      flex: 1;
+    }
+    .question-panel {
+      width: 30%;
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      color: #fff;
+      overflow-y: auto;
+    }
+    .editor-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      background: #1e1e1e;
+    }
+    #editor {
+      flex: 1;
+      border: 1px solid #333;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    select, button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button {
+      background: #27ae60;
+      color: #fff;
+    }
+    button:hover {
+      background: #1e8b4d;
+    }
+  </style>
+</head>
+<body>
+  <header>Exam Interface - Room: <span id="roomDisplay"></span></header>
+
+  <div class="main-container">
+    <!-- Left Panel -->
+    <div class="question-panel">
+      <h3>Question:</h3>
+      <p id="questionText">Loading question...</p>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="editor-panel">
+      <div class="controls">
+        <select id="languageSelect">
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="cpp">C++</option>
+          <option value="java">Java</option>
+        </select>
+        <button id="runCodeBtn">Run Code ▶</button>
+      </div>
+      <div id="editor"></div>
+    </div>
+  </div>
+
+  <!-- Monaco Editor CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+  <script src="js/config.js"></script>
+  <script>
+    const {ROOM_STORAGE_KEY, USER_STORAGE_KEY} = window.CV_CONFIG;
+    document.getElementById('roomDisplay').innerText = localStorage.getItem(ROOM_STORAGE_KEY);
+
+    // Fetch question (static for now)
+    document.getElementById('questionText').innerText = "Write a program to find factorial of a number.";
+
+    // Load Monaco Editor
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+    require(["vs/editor/editor.main"], function () {
+      window.editor = monaco.editor.create(document.getElementById('editor'), {
+        value: "// Start coding here...",
+        language: 'javascript',
+        theme: 'vs-dark',
+        automaticLayout: true
+      });
+    });
+
+    // Change language
+    document.getElementById('languageSelect').addEventListener('change', (e) => {
+      const lang = e.target.value;
+      monaco.editor.setModelLanguage(window.editor.getModel(), lang);
+    });
+
+    // Run button
+    document.getElementById('runCodeBtn').addEventListener('click', () => {
+      const code = window.editor.getValue();
+      alert("Running code:\n\n" + code);
+      // Here you can send code to backend for execution
+    });
+
+    // Anti-Cheat Features
+    // Disable copy/paste
+    document.addEventListener('copy', (e) => e.preventDefault());
+    document.addEventListener('paste', (e) => e.preventDefault());
+
+    // Detect tab switch
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        console.warn("Tab switch detected!");
+        alert("Warning: You switched tabs!");
+      }
+    });
+  </script>
+</body>
+</html>

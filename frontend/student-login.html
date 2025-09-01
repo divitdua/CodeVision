@@ -5,63 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Login - CodeVision</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #4a90e2, #7ed6df);
-      font-family: Arial, sans-serif;
-    }
-    .card {
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-      text-align: center;
-      width: 320px;
-    }
-    h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    .btn {
-      width: 95%;
-      background: #27ae60;
-      color: white;
-      border: none;
-      padding: 12px;
-      font-size: 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .btn:hover {
-      background: #1e8b4d;
-    }
-    .back {
-      display: block;
-      margin-top: 15px;
-      text-decoration: none;
-      color: #555;
-    }
-  </style>
 </head>
 <body>
   <div class="card">
     <h2>Student Login</h2>
     <input type="text" id="studentName" placeholder="Your Name" />
     <input type="text" id="studentRoomId" placeholder="Enter Room ID" />
-    <button class="btn" id="studentLoginBtn">Join Room</button>
+    <button class="btn student" id="studentLoginBtn">Join Room</button>
     <a href="index.html" class="back">⬅ Back</a>
   </div>
 
@@ -70,11 +20,13 @@
     const {ROOM_STORAGE_KEY, USER_STORAGE_KEY} = window.CV_CONFIG;
     document.getElementById('studentLoginBtn').addEventListener('click', () => {
       const name = document.getElementById('studentName').value.trim();
-      const room = document.getElementById('studentRoomId').value.trim();
-      if(!name || !room) return alert('Please enter all details');
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ name, role: 'student' }));
-      localStorage.setItem(ROOM_STORAGE_KEY, room);
-      window.location.href = 'student.html';
+      const roomId = document.getElementById('studentRoomId').value.trim();
+      if (!name || !roomId) return alert('Please enter all details');
+
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ name, role:'student'}));
+      localStorage.setItem(ROOM_STORAGE_KEY, roomId);
+
+      location.href = 'student.html';
     });
   </script>
 </body>
