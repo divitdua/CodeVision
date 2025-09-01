@@ -1,5 +1,6 @@
-// Central config for endpoints and defaults
 window.CV_CONFIG = {
-  USER_STORAGE_KEY: 'cv_user',
-  ROOM_STORAGE_KEY: 'cv_room'
+  API_URL: "http://localhost:5000/api",
+  WS_URL: "http://localhost:5000",
+  ROOM_STORAGE_KEY: "roomId",
+  USER_STORAGE_KEY: "userInfo"
 };

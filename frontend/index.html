@@ -5,56 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CodeVision - Choose Role</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #4a90e2, #7ed6df);
-      font-family: Arial, sans-serif;
-      color: white;
-    }
-    .container {
-      text-align: center;
-      background: rgba(255,255,255,0.1);
-      padding: 40px;
-      border-radius: 12px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .roles {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-    .btn {
-      background: #fff;
-      color: #333;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn:hover {
-      background: #ffb703;
-      color: #fff;
-      transform: scale(1.05);
-    }
-  </style>
 </head>
 <body>
   <div class="container">
     <h1>Welcome to CodeVision</h1>
     <p>Select your role to continue</p>
     <div class="roles">
-      <button class="btn" onclick="location.href='teacher-login.html'">👩‍🏫 Teacher</button>
-      <button class="btn" onclick="location.href='student-login.html'">👨‍🎓 Student</button>
+      <button class="btn teacher" onclick="location.href='teacher-login.html'">👩‍🏫 Teacher</button>
+      <button class="btn student" onclick="location.href='student-login.html'">👨‍🎓 Student</button>
     </div>
     <br>
     <button class="btn" onclick="location.href='collaborative.html'">🤝 Collaborative Mode</button>

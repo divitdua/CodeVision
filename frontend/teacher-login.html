@@ -5,76 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teacher Login - CodeVision</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #4a90e2, #7ed6df);
-      font-family: Arial, sans-serif;
-    }
-    .card {
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-      text-align: center;
-      width: 320px;
-    }
-    h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    .btn {
-      width: 95%;
-      background: #4a90e2;
-      color: white;
-      border: none;
-      padding: 12px;
-      font-size: 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .btn:hover {
-      background: #357abd;
-    }
-    .back {
-      display: block;
-      margin-top: 15px;
-      text-decoration: none;
-      color: #555;
-    }
-  </style>
 </head>
 <body>
   <div class="card">
     <h2>Teacher Login</h2>
     <input type="text" id="teacherName" placeholder="Your Name" />
     <input type="text" id="roomId" placeholder="Create Room ID" />
-    <button class="btn" id="teacherLoginBtn">Create Room</button>
+    <button class="btn teacher" id="teacherLoginBtn">Create Room</button>
     <a href="index.html" class="back">⬅ Back</a>
   </div>
 
   <script src="js/config.js"></script>
   <script>
     const {ROOM_STORAGE_KEY, USER_STORAGE_KEY} = window.CV_CONFIG;
-    document.getElementById('teacherLoginBtn').addEventListener('click', () => {
+    document.getElementById('teacherLoginBtn').addEventListener('click', async () => {
       const name = document.getElementById('teacherName').value.trim();
-      const room = document.getElementById('roomId').value.trim();
-      if(!name || !room) return alert('Please enter all details');
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ name, role: 'teacher' }));
-      localStorage.setItem(ROOM_STORAGE_KEY, room);
-      window.location.href = 'teacher.html';
+      const roomName = document.getElementById('roomId').value.trim();
+      if (!name || !roomName) return alert('Please enter all details');
+
+      // Save details locally
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ name, role:'teacher'}));
+      localStorage.setItem(ROOM_STORAGE_KEY, roomName);
+
+      location.href = 'teacher-dashboard.html';
     });
   </script>
 </body>
