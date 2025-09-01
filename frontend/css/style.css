@@ -22,8 +22,10 @@ body {
   border-radius: 12px;
   padding: 30px;
   text-align: center;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   color: #fff;
+  width: 100%;
+  max-width: 400px;
 }
 
 h1, h2 {
@@ -43,12 +45,13 @@ p {
 }
 
 input {
-  width: 90%;
+  width: 100%;
   padding: 12px;
   margin: 10px 0;
   border-radius: 8px;
   border: none;
   font-size: 16px;
+  outline: none;
 }
 
 .btn {
@@ -61,6 +64,8 @@ input {
   cursor: pointer;
   transition: 0.3s;
   margin-top: 10px;
+  width: 100%;
+  max-width: 200px;
 }
 
 .btn:hover {
@@ -74,4 +79,30 @@ input {
   margin-top: 15px;
   color: #fff;
   text-decoration: underline;
+}
+
+/* Role-specific button colors */
+.btn.teacher {
+  background: #4a90e2;
+  color: #fff;
+}
+
+.btn.teacher:hover {
+  background: #357abd;
+}
+
+.btn.student {
+  background: #27ae60;
+  color: #fff;
+}
+
+.btn.student:hover {
+  background: #1e8b4d;
+}
+
+/* Responsive Design */
+@media (max-width: 500px) {
+  .roles {
+    flex-direction: column;
+  }
 }
