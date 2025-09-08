@@ -1,0 +1,108 @@
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #4a90e2, #7ed6df);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container, .card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  width: 100%;
+  max-width: 400px;
+}
+
+h1, h2 {
+  margin-bottom: 15px;
+}
+
+p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.roles, .form-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  outline: none;
+}
+
+.btn {
+  background: #fff;
+  color: #333;
+  border: none;
+  padding: 14px 28px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.btn:hover {
+  background: #ffb703;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.back {
+  display: inline-block;
+  margin-top: 15px;
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Role-specific button colors */
+.btn.teacher {
+  background: #4a90e2;
+  color: #fff;
+}
+
+.btn.teacher:hover {
+  background: #357abd;
+}
+
+.btn.student {
+  background: #27ae60;
+  color: #fff;
+}
+
+.btn.student:hover {
+  background: #1e8b4d;
+}
+
+/* Responsive Design */
+@media (max-width: 500px) {
+  .roles {
+    flex-direction: column;
+  }
+}

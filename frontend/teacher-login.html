@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Login - CodeVision</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="card">
+    <h2>Teacher Login</h2>
+    <input type="text" id="teacherName" placeholder="Your Name" />
+    <input type="text" id="roomId" placeholder="Create Room ID" />
+    <button class="btn teacher" id="teacherLoginBtn">Create Room</button>
+    <a href="index.html" class="back">⬅ Back</a>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    const {ROOM_STORAGE_KEY, USER_STORAGE_KEY} = window.CV_CONFIG;
+    document.getElementById('teacherLoginBtn').addEventListener('click', async () => {
+      const name = document.getElementById('teacherName').value.trim();
+      const roomName = document.getElementById('roomId').value.trim();
+      if (!name || !roomName) return alert('Please enter all details');
+
+      // Save details locally
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ name, role:'teacher'}));
+      localStorage.setItem(ROOM_STORAGE_KEY, roomName);
+
+      location.href = 'teacher-dashboard.html';
+    });
+  </script>
+</body>
+</html>

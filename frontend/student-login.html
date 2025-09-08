@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Login - CodeVision</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="card">
+    <h2>Student Login</h2>
+    <input type="text" id="studentName" placeholder="Your Name" />
+    <input type="text" id="studentRoomId" placeholder="Enter Room ID" />
+    <button class="btn student" id="studentLoginBtn">Join Room</button>
+    <a href="index.html" class="back">⬅ Back</a>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    const {ROOM_STORAGE_KEY, USER_STORAGE_KEY} = window.CV_CONFIG;
+    document.getElementById('studentLoginBtn').addEventListener('click', () => {
+      const name = document.getElementById('studentName').value.trim();
+      const roomId = document.getElementById('studentRoomId').value.trim();
+      if (!name || !roomId) return alert('Please enter all details');
+
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ name, role:'student'}));
+      localStorage.setItem(ROOM_STORAGE_KEY, roomId);
+
+      location.href = 'student.html';
+    });
+  </script>
+</body>
+</html>

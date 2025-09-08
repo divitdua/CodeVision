@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard - CodeVision</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Teacher Dashboard</h2>
+    <p>Room: <span id="roomDisplay"></span></p>
+
+    <textarea id="questionBox" placeholder="Enter question" style="width:100%; height:80px;"></textarea>
+    <button class="btn teacher" id="uploadQuestionBtn">Upload Question</button>
+
+    <h3 style="margin-top:20px;">Students' Screens (Coming soon)</h3>
+    <div id="studentScreens" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    const { ROOM_STORAGE_KEY } = window.CV_CONFIG;
+    document.getElementById('roomDisplay').innerText = localStorage.getItem(ROOM_STORAGE_KEY);
+  </script>
+</body>
+</html>
