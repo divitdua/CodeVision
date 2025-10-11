@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVision</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.css">
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/mode/javascript/javascript.js"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="p-6">
+    <h1 class="text-2xl font-bold text-center">CodeVision</h1>
+    <div id="app" class="flex flex-col items-center space-y-6 mt-10">
+  <h2 class="text-xl font-semibold">Create a Room</h2>
+
+  <!-- Room Type Buttons -->
+  <button 
+    onclick="createExamRoom()"
+    class="px-6 py-3 bg-blue-500 text-white rounded-xl shadow-md hover:bg-blue-600 transition">
+    Create Exam Room
+  </button>
+
+  <button 
+    onclick="createCollaborativeRoom()"
+    class="px-6 py-3 bg-purple-500 text-white rounded-xl shadow-md hover:bg-purple-600 transition">
+    Create Collaborative Room (Coming Soon)
+  </button>
+
+  <!-- Display Result -->
+  <div id="roomInfo" class="hidden mt-6 p-4 bg-white rounded-xl shadow-md w-80">
+    <h3 class="text-lg font-semibold text-center mb-2">Room Created!</h3>
+    <p><strong>Room ID:</strong> <span id="roomId"></span></p>
+    <button 
+      onclick="goToHostPage()"
+      class="mt-4 w-full px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition">
+      Go to Exam Host Page
+    </button>
+  </div>
+</div>
+
+<script src="./js/create.js"></script>
+
+  </div>
+
+  <script src="./js/common.js"></script>
+  <!-- Page-specific script will be added below -->
+</body>
+</html>
