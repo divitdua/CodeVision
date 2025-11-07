@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVision - Student</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <!-- Monaco Editor Loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs/loader.js"></script>
+
+  <style>
+    #editor {
+      height: 400px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="p-6 max-w-6xl mx-auto">
+    <h1 class="text-2xl font-bold text-center">CodeVision - Student Exam</h1>
+
+    <!-- Room Details -->
+    <div class="mt-4 bg-white shadow rounded p-4">
+      <p><strong>Room ID:</strong> <span id="roomIdDisplay"></span></p>
+    </div>
+
+    <!-- Language Selector -->
+    <div class="mt-4">
+      <label for="language" class="font-semibold">Select Language:</label>
+      <select id="language" class="border rounded p-2">
+        <option value="javascript">JavaScript</option>
+        <option value="python">Python</option>
+        <option value="cpp">C++</option>
+      </select>
+    </div>
+
+    <!-- Collaborative Chat -->
+    <div class="mt-4 bg-white shadow rounded p-4 h-48 overflow-y-auto" id="chatBox">
+      <div class="text-gray-500 text-center">No messages yet</div>
+    </div>
+    <div class="flex mt-2">
+      <input id="chatInput" type="text" class="border rounded p-2 flex-1" placeholder="Type a message..." />
+      <button id="sendChat" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded">Send</button>
+    </div>
+
+    <!-- Monaco Editor -->
+    <div class="mt-4" id="editor"></div>
+
+    <!-- Action Buttons -->
+    <div class="mt-4 flex space-x-4">
+      <button id="runCode" class="bg-green-500 text-white px-4 py-2 rounded">Run Code</button>
+      <button id="submitCode" class="bg-purple-500 text-white px-4 py-2 rounded">Submit Code</button>
+    </div>
+
+    <!-- Output Terminal -->
+    <div class="mt-4 bg-black text-white p-4 rounded h-48 overflow-y-auto" id="output">
+      Output will appear here...
+    </div>
+  </div>
+
+  <!-- Common and Page-specific Scripts -->
+  <script src="./js/common.js"></script>
+  <script src="./js/exam-student.js"></script>
+</body>
+</html>
