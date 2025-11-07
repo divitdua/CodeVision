@@ -1,11 +1,11 @@
 // Navigate to create room page
 function goToCreate() {
-  window.location.href = "create.html";
+  window.location.href = "frontend/create.html";
 }
 
 // Navigate to join room page
 function goToJoin() {
-  window.location.href = "join.html";
+  window.location.href = "frontend/join.html";
 }
 
 // Test Socket.IO connection

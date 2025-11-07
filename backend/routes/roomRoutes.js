@@ -4,26 +4,7 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// ✅ Add question to room
-router.post("/:roomId/question", async (req, res) => {
-  try {
-    const { question } = req.body;
-    const room = await Room.findById(req.params.roomId);
-    if (!room) return res.status(404).json({ message: "Room not found" });
-
-    room.question = question;
-    await room.save();
-
-    // Emit to all users in the room
-    req.app.get("io").to(req.params.roomId).emit("new-question", question);
-
-    res.json({ message: "Question uploaded", question });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ Create a new room
+// Create a new room (✅ no password now)
 router.post("/", async (req, res) => {
   try {
     const { name, type, teacherId } = req.body;
@@ -33,15 +14,26 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "Teacher not found" });
     }
 
-    const room = new Room({ name, type, teacher: teacher._id });
+    // Create room (no password field)
+    const room = new Room({
+      name,
+      type,
+      teacher: teacher._id,
+    });
+
     await room.save();
-    res.status(201).json(room);
+
+    res.status(201).json({
+      roomId: room._id,
+      name: room.name,
+      teacher: teacher.name,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Get all rooms
+// Get all rooms
 router.get("/", async (req, res) => {
   try {
     const rooms = await Room.find()
@@ -53,7 +45,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ Join a room
+// Join a room (✅ simplified — no password check)
 router.post("/:roomId/join", async (req, res) => {
   try {
     const { userId } = req.body;
@@ -63,6 +55,7 @@ router.post("/:roomId/join", async (req, res) => {
       return res.status(404).json({ message: "Room not found" });
     }
 
+    // Prevent duplicate joins
     if (room.students.includes(userId)) {
       return res.status(400).json({ message: "User already in room" });
     }
@@ -70,7 +63,10 @@ router.post("/:roomId/join", async (req, res) => {
     room.students.push(userId);
     await room.save();
 
-    res.json({ message: "User joined room successfully", room });
+    res.json({
+      message: "User joined room successfully",
+      room,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

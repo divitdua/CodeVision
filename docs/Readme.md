@@ -1,3 +1,2 @@
-first commit done
-second change
-third change 
+implemented all codes 
+now fixing ui/ux

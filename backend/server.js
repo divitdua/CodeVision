@@ -4,31 +4,28 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const http = require("http");
 const { Server } = require("socket.io");
-const path = require("path");
 
 dotenv.config();
 
+const authRoutes = require("./routes/authRoutes");
+const roomRoutes = require("./routes/roomRoutes");
+const logRoutes = require("./routes/logRoutes");
+const Log = require("./models/Log");
+
 const app = express();
 const server = http.createServer(app);
-
-// Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: "*", // restrict in production
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
 
-// Serve static frontend files from "frontend" folder
-app.use(express.static(path.join(__dirname, "..", "frontend")));
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Routes
-const authRoutes = require("./routes/authRoutes");
-const roomRoutes = require("./routes/roomRoutes");
-const logRoutes = require("./routes/logRoutes");
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/logs", logRoutes);
@@ -39,10 +36,7 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.log("❌ MongoDB error:", err));
 
-// Model for logs
-const Log = require("./models/Log");
-
-// 🔹 Helper function to save logs
+// Helper to save logs
 const saveLog = async (roomId, user, action, data = "") => {
   try {
     const log = new Log({ roomId, user, action, data });
@@ -52,44 +46,104 @@ const saveLog = async (roomId, user, action, data = "") => {
   }
 };
 
-app.set("io", io);
+// Track participants per room
+const participantsPerRoom = {};
 
-// 🔹 Socket.IO events
 io.on("connection", (socket) => {
   console.log("⚡ A user connected:", socket.id);
 
-  // Join a room
-  socket.on("join-room", ({ roomId, user }) => {
+  // --- Join room ---
+  socket.on("join-room", ({ roomId, role, studentName }) => {
     socket.join(roomId);
-    console.log(`${user} joined room: ${roomId}`);
+    socket.roomId = roomId;
+    socket.studentName = studentName || "Anonymous";
 
-    // Save log
-    saveLog(roomId, user, "join-room");
+    if (!participantsPerRoom[roomId]) participantsPerRoom[roomId] = [];
+
+    // Add participant if not already in the list
+    if (!participantsPerRoom[roomId].includes(socket.studentName)) {
+      participantsPerRoom[roomId].push(socket.studentName);
+    }
+
+    console.log(`📥 ${socket.studentName} joined room: ${roomId}`);
+
+    // Emit updated participants list to everyone in room
+    io.to(roomId).emit("participants-update", participantsPerRoom[roomId]);
+
+    saveLog(roomId, socket.studentName, "join-room");
   });
 
-  // Code update
+  // --- Chat message ---
+  socket.on("chat-message", ({ roomId, message, sender }) => {
+    io.to(roomId).emit("chat-message", { message, sender });
+    saveLog(roomId, sender, "chat-message", message);
+  });
+
+  // --- Code changes ---
   socket.on("code-change", ({ roomId, code, user }) => {
     socket.to(roomId).emit("code-change", code);
-
-    // Save log (only first 50 chars to avoid overload)
     saveLog(roomId, user, "code-change", code.substring(0, 50));
   });
 
-  socket.on("screen-offer", ({ roomId, offer }) => {
-  socket.to(roomId).emit("screen-offer", { offer, studentId: socket.id });
-});
-
-socket.on("screen-answer", ({ roomId, answer, studentId }) => {
-  io.to(studentId).emit("screen-answer", { answer });
-});
-
-  // Disconnect
-  socket.on("disconnect", () => {
+  // --- Disconnect ---
+  socket.on("disconnecting", () => {
+    const roomId = socket.roomId;
+    if (roomId && participantsPerRoom[roomId]) {
+      participantsPerRoom[roomId] = participantsPerRoom[roomId].filter(
+        (name) => name !== socket.studentName
+      );
+      io.to(roomId).emit("participants-update", participantsPerRoom[roomId]);
+    }
     console.log("❌ User disconnected:", socket.id);
   });
 });
 
-// Start server
+// --------------------
+// 🧠 CODE RUNNER ROUTE
+// --------------------
+const { exec } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+
+app.post("/api/run", async (req, res) => {
+  const { code, language } = req.body;
+  if (!code || !language) {
+    return res.status(400).json({ error: "Code and language required" });
+  }
+
+  try {
+    const tempDir = path.join(__dirname, "temp");
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+
+    let fileName, command;
+
+    if (language === "python") {
+      fileName = path.join(tempDir, "code.py");
+      fs.writeFileSync(fileName, code);
+      command = `python "${fileName}"`;
+    } else if (language === "cpp") {
+      fileName = path.join(tempDir, "code.cpp");
+      const exe = path.join(tempDir, "code.exe");
+      fs.writeFileSync(fileName, code);
+      command = `g++ "${fileName}" -o "${exe}" && "${exe}"`;
+    } else {
+      // Default JavaScript
+      fileName = path.join(tempDir, "code.js");
+      fs.writeFileSync(fileName, code);
+      command = `node "${fileName}"`;
+    }
+
+    exec(command, { timeout: 5000 }, (err, stdout, stderr) => {
+      if (err) return res.json({ output: stderr || err.message });
+      return res.json({ output: stdout || "No output" });
+    });
+  } catch (err) {
+    res.status(500).json({ output: "Server error while running code" });
+  }
+});
+
+
+// ✅ START SERVER
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () =>
   console.log(`🚀 Server + Socket.IO running on http://localhost:${PORT}`)
