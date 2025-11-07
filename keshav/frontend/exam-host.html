@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVision - Exam Host</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+</head>
+<body class="bg-gray-100">
+  <div class="p-6 max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold text-center mb-6">Exam Host Dashboard</h1>
+
+    <!-- Room Details -->
+    <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+      <h2 class="text-xl font-semibold mb-2">Room Details</h2>
+      <p><strong>Room ID:</strong> <span id="roomId"></span></p>
+    </div>
+
+    <!-- Participants -->
+    <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+      <h2 class="text-xl font-semibold mb-2">Participants</h2>
+      <ul id="participants" class="list-disc pl-5 text-gray-700"></ul>
+    </div>
+
+    <!-- Group Chat -->
+    <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+      <h2 class="text-xl font-semibold mb-2">Group Chat</h2>
+      <div id="chatBox" class="border h-40 overflow-y-auto p-2 mb-2"></div>
+      <input id="chatInput" type="text" class="border rounded p-2 w-3/4" placeholder="Type a message...">
+      <button id="sendBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
+    </div>
+
+    <!-- Logs -->
+    <div class="bg-white shadow-md rounded-lg p-4">
+      <h2 class="text-xl font-semibold mb-2">Logs</h2>
+      <ul id="logs" class="list-disc pl-5 text-gray-700"></ul>
+      <button id="downloadLogs" class="bg-green-500 text-white px-4 py-2 mt-2 rounded">Download Logs (CSV)</button>
+      <button id="downloadCodes" class="bg-purple-500 text-white px-4 py-2 mt-2 rounded">Download Submitted Codes (ZIP)</button>
+    </div>
+  </div>
+
+  <script src="./js/common.js"></script>
+  <script src="./js/exam-host.js"></script>
+</body>
+</html>
