@@ -98,7 +98,52 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start server
+// --------------------
+// 🧠 CODE RUNNER ROUTE
+// --------------------
+const { exec } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+
+app.post("/api/run", async (req, res) => {
+  const { code, language } = req.body;
+  if (!code || !language) {
+    return res.status(400).json({ error: "Code and language required" });
+  }
+
+  try {
+    const tempDir = path.join(__dirname, "temp");
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+
+    let fileName, command;
+
+    if (language === "python") {
+      fileName = path.join(tempDir, "code.py");
+      fs.writeFileSync(fileName, code);
+      command = `python "${fileName}"`;
+    } else if (language === "cpp") {
+      fileName = path.join(tempDir, "code.cpp");
+      const exe = path.join(tempDir, "code.exe");
+      fs.writeFileSync(fileName, code);
+      command = `g++ "${fileName}" -o "${exe}" && "${exe}"`;
+    } else {
+      // Default JavaScript
+      fileName = path.join(tempDir, "code.js");
+      fs.writeFileSync(fileName, code);
+      command = `node "${fileName}"`;
+    }
+
+    exec(command, { timeout: 5000 }, (err, stdout, stderr) => {
+      if (err) return res.json({ output: stderr || err.message });
+      return res.json({ output: stdout || "No output" });
+    });
+  } catch (err) {
+    res.status(500).json({ output: "Server error while running code" });
+  }
+});
+
+
+// ✅ START SERVER
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () =>
   console.log(`🚀 Server + Socket.IO running on http://localhost:${PORT}`)
