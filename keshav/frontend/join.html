@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVision</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.css">
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/mode/javascript/javascript.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+    <h1 class="text-3xl font-bold text-center mb-6">CodeVision</h1>
+    <h2 class="text-xl font-semibold text-center mb-4">Join a Room</h2>
+
+    <!-- Student Name -->
+    <input 
+      id="studentNameInput"
+      type="text"
+      placeholder="Enter Your Name"
+      class="border p-2 rounded w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
+    />
+
+    <!-- Room ID -->
+    <input 
+      id="roomIdInput"
+      type="text"
+      placeholder="Enter Room ID"
+      class="border p-2 rounded w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
+    />
+
+    <!-- Join Button -->
+    <button 
+      onclick="joinRoom()"
+      class="w-full px-6 py-3 bg-green-500 text-white rounded-xl shadow-md hover:bg-green-600 transition">
+      Join Room
+    </button>
+
+    <!-- Error Message -->
+    <p id="errorMsg" class="hidden text-red-500 mt-4 text-center"></p>
+  </div>
+
+  <script src="./js/common.js"></script>
+  <script src="./js/join.js"></script>
+</body>
+</html>
