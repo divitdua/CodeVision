@@ -27,3 +27,23 @@ function apiPost(path, data) {
     headers: { Authorization: `Bearer ${getToken()}` }
   });
 }
+
+// ====== Save Log (Student Activity) ======
+function saveLog(category, action, data = "") {
+  const roomId = localStorage.getItem("currentRoomId");
+  const userId = localStorage.getItem("studentId");
+  const userName = localStorage.getItem("studentName");
+
+  if (!roomId || !userId || !userName) return;
+
+  axios.post(`${API_BASE}/logs/add`, {
+    roomId,
+    userId,
+    userName,
+    category,
+    action,
+    data
+  }, {
+    headers: { Authorization: `Bearer ${getToken()}` }
+  });
+}

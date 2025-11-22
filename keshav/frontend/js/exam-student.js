@@ -106,4 +106,48 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error(error);
     }
   });
+
+    // ====== STUDENT LOGGING ======
+
+  // Student joined (on socket connect)
+  socket.on("connect", () => {
+    saveLog("joined", "Student connected");
+  });
+
+  // When student closes tab / reloads
+  window.addEventListener("beforeunload", () => {
+    saveLog("left", "Student closed tab or refreshed");
+  });
+
+  // When student switches tab or minimizes
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      saveLog("tab-blur", "Student switched or minimized tab");
+    } else {
+      saveLog("tab-focus", "Student returned to tab");
+    }
+  });
+
+  // // When student switches window (ALT + TAB)
+  // window.addEventListener("blur", () => {
+  //   saveLog("window-blur", "Window lost focus");
+  // });
+
+  // window.addEventListener("focus", () => {
+  //   saveLog("window-focus", "Window focused again");
+  // });
+
+  // ========= FIXED SAVE LOG FUNCTION =========
+  function saveLog(action, data = "") {
+    socket.emit("log-event", {
+      roomId,
+      user: userName,
+      action,
+      data,
+      timestamp: new Date()
+    });
+  }
+
 });
+
+

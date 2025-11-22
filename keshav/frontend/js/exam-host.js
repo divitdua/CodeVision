@@ -46,17 +46,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Logging
-  let logs = [];
-  function addLog(event) {
-    const logEntry = `${new Date().toLocaleTimeString()} - ${event}`;
-    logs.push(logEntry);
-    const li = document.createElement("li");
-    li.textContent = logEntry;
-    logsEl.appendChild(li);
-  }
-  addLog("Exam started");
-  window.onblur = () => addLog("Window minimized or tab switched");
-  window.onfocus = () => addLog("Window focused");
+    let logs = [];
+
+    // Only initial exam started log
+    function addHostLog(event) {
+      const logEntry = `${new Date().toLocaleTimeString()} - ${event}`;
+      logs.push(logEntry);
+      const li = document.createElement("li");
+      li.textContent = logEntry;
+      logsEl.appendChild(li);
+    }
+
+    // Add ONLY exam started
+    addHostLog("Exam started");
+
+    // Disable host blur/focus logs (to avoid clutter)
+    window.onblur = null;
+    window.onfocus = null;
+
 
   downloadLogsBtn.addEventListener("click", () => {
     const csvContent = "data:text/csv;charset=utf-8," + logs.join("\n");
@@ -87,4 +94,25 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error(err);
     }
   });
+
+    // ===== REAL-TIME STUDENT LOGS FROM SERVER =====
+    socket.on("new-log", (log) => {
+    const entry = `${log.user} | ${new Date(log.timestamp).toLocaleTimeString()} | ${log.action}`;
+    logs.push(entry);
+
+    const li = document.createElement("li");
+    li.textContent = entry;
+
+    // 🔴 HIGHLIGHT SUSPICIOUS EVENTS
+    const suspicious = ["window-blur", "tab-blur", "window-minimized", "focus-loss","tab-focus"];
+    if (suspicious.includes(log.action)) {
+      li.style.background = "rgba(255, 0, 0, 0.2)";
+      li.style.color = "#b00000";
+      li.style.fontWeight = "bold";
+    }
+
+    logsEl.appendChild(li);
+    logsEl.scrollTop = logsEl.scrollHeight;
+  });
+
 });
