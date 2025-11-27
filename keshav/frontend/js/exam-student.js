@@ -95,17 +95,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------
   // SUBMIT CODE
   // -------------------
-  document.getElementById("submitCode").addEventListener("click", async () => {
+    document.getElementById("submitCode").addEventListener("click", async () => {
     const code = editor.getValue();
     const language = languageSelect.value;
+    const studentName = localStorage.getItem("studentName") || "Unknown";
+
     try {
-      await axios.post(`http://localhost:5000/api/exams/${roomId}/submit`, { code, language }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(
+        `http://localhost:5000/api/exams/${roomId}/submit`,
+        {
+          code,
+          language,
+          studentName   // ✅ Send student name to backend
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
       alert("Code submitted successfully!");
     } catch (error) {
       alert("Failed to submit code.");
       console.error(error);
     }
   });
+
 
     // ====== STUDENT LOGGING ======
 

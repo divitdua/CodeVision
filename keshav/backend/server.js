@@ -10,6 +10,8 @@ dotenv.config();
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const logRoutes = require("./routes/logRoutes");
+const examRoutes = require("./routes/examRoutes");
+
 const Log = require("./models/Log");
 
 const app = express();
@@ -29,6 +31,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/logs", logRoutes);
+app.use("/api/exams", examRoutes);
 
 // MongoDB connection
 mongoose
