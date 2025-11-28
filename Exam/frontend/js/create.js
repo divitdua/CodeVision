@@ -1,36 +1,34 @@
 // Handle Exam Room creation
 async function createExamRoom() {
   try {
+    // Get token & userId from localStorage
     const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("No token found! Please log in again.");
-      return;
-    }
-
-    // Decode user ID from token
-    const userId = localStorage.getItem("userId") || JSON.parse(atob(token.split('.')[1])).id;
+    const userId = localStorage.getItem("userId") || "testUserId";
 
     // API call to create a new exam room
     const response = await apiPost("/rooms", {
       name: "Exam Room",
       type: "exam",
-      teacherId: userId
+      teacherId: userId  // placeholder, backend ignores it
     });
 
-    const room = response.data || response;
+    const room = response.data;
     const roomId = room.roomId;
 
     // Store new room details
-    localStorage.removeItem("roomId"); // clear old one
     localStorage.setItem("roomId", roomId);
     localStorage.setItem("roomType", "exam");
+    localStorage.setItem("currentRoomId", roomId); // for logging
+    localStorage.setItem("studentName", "Host");   // teacher/host
 
-    // Force update before redirect
     console.log("Saved Room ID:", roomId);
 
-    // Update UI (only Room ID)
-    document.getElementById("roomId").innerText = roomId;
-    document.getElementById("roomInfo").classList.remove("hidden");
+    // Update UI
+    const roomIdEl = document.getElementById("roomId");
+    if (roomIdEl) roomIdEl.innerText = roomId;
+    const roomInfoEl = document.getElementById("roomInfo");
+    if (roomInfoEl) roomInfoEl.classList.remove("hidden");
+
   } catch (error) {
     console.error("Room creation error:", error);
     alert("Failed to create room. Check console.");

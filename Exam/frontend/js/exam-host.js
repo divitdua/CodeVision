@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ✅ Use temporary token from common.js
+  const token = localStorage.getItem("authToken");
   const socket = io("http://localhost:5000");
-  const token = localStorage.getItem("token");
   const roomId = localStorage.getItem("roomId");
 
   const roomIdEl = document.getElementById("roomId");
@@ -45,18 +46,17 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 
-  // Logging
+  // Logs
   let logs = [];
-  function addLog(event) {
+  function addHostLog(event) {
     const logEntry = `${new Date().toLocaleTimeString()} - ${event}`;
     logs.push(logEntry);
     const li = document.createElement("li");
     li.textContent = logEntry;
     logsEl.appendChild(li);
   }
-  addLog("Exam started");
-  window.onblur = () => addLog("Window minimized or tab switched");
-  window.onfocus = () => addLog("Window focused");
+
+  addHostLog("Exam started"); // initial log
 
   downloadLogsBtn.addEventListener("click", () => {
     const csvContent = "data:text/csv;charset=utf-8," + logs.join("\n");
@@ -86,5 +86,24 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Failed to download codes.");
       console.error(err);
     }
+  });
+
+  // Real-time student logs
+  socket.on("new-log", (log) => {
+    const entry = `${log.user} | ${new Date(log.timestamp).toLocaleTimeString()} | ${log.action}`;
+    logs.push(entry);
+
+    const li = document.createElement("li");
+    li.textContent = entry;
+
+    const suspicious = ["window-blur", "tab-blur", "window-minimized", "focus-loss","tab-focus"];
+    if (suspicious.includes(log.action)) {
+      li.style.background = "rgba(255, 0, 0, 0.2)";
+      li.style.color = "#b00000";
+      li.style.fontWeight = "bold";
+    }
+
+    logsEl.appendChild(li);
+    logsEl.scrollTop = logsEl.scrollHeight;
   });
 });
