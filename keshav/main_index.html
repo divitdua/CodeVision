@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-lg rounded-xl p-10 w-96 text-center">
+    
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">
+      Choose Your Mode
+    </h1>
+
+    <!-- Exam Mode -->
+    <button 
+      onclick="goToExam()"
+      class="w-full mb-4 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg text-lg font-semibold transition">
+      📝 Enter Exam Mode
+    </button>
+
+    <!-- Collaborative Mode -->
+    <button 
+      onclick="goToCollab()"
+      class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold transition">
+      💬 Enter Collaborative Mode
+    </button>
+
+  </div>
+
+  <script>
+    function goToExam() {
+      window.location.href = "Exam/frontend/index.html";  
+    }
+
+    function goToCollab() {
+      window.location.href = "/pages/collab-room.html";  
+    }
+  </script>
+
+</body>
+</html>

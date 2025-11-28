@@ -1,3 +1,7 @@
+// ✅ Ensure socket uses temporary token
+const token = localStorage.getItem("authToken");
+const socket = io("http://localhost:5000", { query: { token } });
+
 // Navigate to create room page
 function goToCreate() {
   window.location.href = "create.html";

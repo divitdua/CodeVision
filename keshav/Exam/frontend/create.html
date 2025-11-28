@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVision</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.css">
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/mode/javascript/javascript.js"></script>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-purple-50 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white p-10 rounded-3xl shadow-2xl w-96 flex flex-col items-center space-y-6">
+    <h1 class="text-3xl font-extrabold text-gray-800 text-center">CodeVision</h1>
+    <h2 class="text-xl font-semibold text-gray-700 text-center">Generate a Room</h2>
+
+    <!-- Generate Room Button -->
+    <button 
+      onclick="createExamRoom()"
+      class="w-full py-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition duration-300 font-semibold">
+      Generate Room ID
+    </button>
+
+    <!-- Display Result -->
+    <div id="roomInfo" class="hidden mt-6 p-4 bg-gray-50 rounded-xl shadow-md w-full text-center">
+      <h3 class="text-lg font-semibold mb-2 text-gray-800">Room Created!</h3>
+      <p class="text-gray-700"><strong>Room ID:</strong> <span id="roomId" class="font-mono"></span></p>
+      <button 
+        onclick="goToHostPage()"
+        class="mt-4 w-full py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition font-semibold">
+        Go to Exam Host Page
+      </button>
+    </div>
+  </div>
+
+  <script src="./js/create.js"></script>
+  <script src="./js/common.js"></script>
+</body>
+</html>

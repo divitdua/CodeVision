@@ -11,6 +11,8 @@ const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const logRoutes = require("./routes/logRoutes");
 const Log = require("./models/Log");
+const runRoutes = require("./routes/runRoutes");
+const examRoutes = require("./routes/examRoutes"); 
 
 const app = express();
 const server = http.createServer(app);
@@ -29,6 +31,8 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/logs", logRoutes);
+app.use("/api/run", runRoutes); 
+app.use("/api/exams", examRoutes);
 
 // MongoDB connection
 mongoose
@@ -37,14 +41,23 @@ mongoose
   .catch((err) => console.log("❌ MongoDB error:", err));
 
 // Helper to save logs
-const saveLog = async (roomId, user, action, data = "") => {
+const saveLog = async (roomId, userName, action, data = "") => {
   try {
-    const log = new Log({ roomId, user, action, data });
+    const log = new Log({
+      roomId,
+      userId: "server",        // server-generated logs
+      userName,
+      category: "server",
+      action,
+      data
+    });
+
     await log.save();
   } catch (err) {
     console.error("❌ Error saving log:", err.message);
   }
 };
+
 
 // Track participants per room
 const participantsPerRoom = {};
@@ -85,6 +98,35 @@ io.on("connection", (socket) => {
     saveLog(roomId, user, "code-change", code.substring(0, 50));
   });
 
+  // --- Student Activity Logs (REAL-TIME + SAVE) ---
+  socket.on("log-event", async (data) => {
+    try {
+      // Save to database
+      await Log.create({
+        roomId: data.roomId,
+        userId: "student",
+        userName: data.user,
+        category: "activity",
+        action: data.action,
+        data: data.data,
+        timestamp: data.timestamp,
+      });
+
+      // 🔥 Real-time send to host dashboard
+      io.to(data.roomId).emit("new-log", {
+        user: data.user,
+        action: data.action,
+        data: data.data,
+        timestamp: data.timestamp,
+      });
+
+    } catch (err) {
+      console.error("❌ Error saving student log:", err.message);
+    }
+  });
+
+
+
   // --- Disconnect ---
   socket.on("disconnecting", () => {
     const roomId = socket.roomId;
@@ -98,52 +140,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// --------------------
-// 🧠 CODE RUNNER ROUTE
-// --------------------
-const { exec } = require("child_process");
-const fs = require("fs");
-const path = require("path");
-
-app.post("/api/run", async (req, res) => {
-  const { code, language } = req.body;
-  if (!code || !language) {
-    return res.status(400).json({ error: "Code and language required" });
-  }
-
-  try {
-    const tempDir = path.join(__dirname, "temp");
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-
-    let fileName, command;
-
-    if (language === "python") {
-      fileName = path.join(tempDir, "code.py");
-      fs.writeFileSync(fileName, code);
-      command = `python "${fileName}"`;
-    } else if (language === "cpp") {
-      fileName = path.join(tempDir, "code.cpp");
-      const exe = path.join(tempDir, "code.exe");
-      fs.writeFileSync(fileName, code);
-      command = `g++ "${fileName}" -o "${exe}" && "${exe}"`;
-    } else {
-      // Default JavaScript
-      fileName = path.join(tempDir, "code.js");
-      fs.writeFileSync(fileName, code);
-      command = `node "${fileName}"`;
-    }
-
-    exec(command, { timeout: 5000 }, (err, stdout, stderr) => {
-      if (err) return res.json({ output: stderr || err.message });
-      return res.json({ output: stdout || "No output" });
-    });
-  } catch (err) {
-    res.status(500).json({ output: "Server error while running code" });
-  }
-});
-
-
-// ✅ START SERVER
+// Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () =>
   console.log(`🚀 Server + Socket.IO running on http://localhost:${PORT}`)
