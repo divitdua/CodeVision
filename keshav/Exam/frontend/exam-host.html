@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVision - Exam Host</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-indigo-50 to-purple-50 min-h-screen py-10">
+  <div class="max-w-6xl mx-auto flex flex-col space-y-6">
+
+    <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-4">Exam Host Dashboard</h1>
+
+    <!-- Room Details -->
+    <div class="bg-white shadow-2xl rounded-2xl p-6">
+      <h2 class="text-2xl font-semibold mb-2 text-gray-700">Room Details</h2>
+      <p class="text-gray-800"><strong>Room ID:</strong> <span id="roomId" class="font-mono"></span></p>
+    </div>
+
+    <!-- Participants -->
+    <div class="bg-white shadow-2xl rounded-2xl p-6">
+      <h2 class="text-2xl font-semibold mb-2 text-gray-700">Participants</h2>
+      <ul id="participants" class="list-disc pl-5 text-gray-700"></ul>
+    </div>
+
+    <!-- Group Chat -->
+    <div class="bg-white shadow-2xl rounded-2xl p-6">
+      <h2 class="text-2xl font-semibold mb-2 text-gray-700">Group Chat</h2>
+      <div id="chatBox" class="border rounded h-48 overflow-y-auto p-3 mb-3 bg-gray-50"></div>
+      <div class="flex space-x-3">
+        <input id="chatInput" type="text" placeholder="Type a message..." class="border rounded-xl p-2 flex-1 focus:ring-2 focus:ring-indigo-400 outline-none transition">
+        <button id="sendBtn" class="bg-blue-600 text-white px-5 py-2 rounded-xl shadow hover:bg-blue-700 transition font-semibold">Send</button>
+      </div>
+    </div>
+
+    <!-- Logs -->
+    <div class="bg-white shadow-2xl rounded-2xl p-6 flex flex-col space-y-3">
+      <h2 class="text-2xl font-semibold mb-2 text-gray-700">Logs</h2>
+      <ul id="logs" class="list-disc pl-5 text-gray-700 max-h-48 overflow-y-auto"></ul>
+      <div class="flex flex-wrap gap-3 mt-2">
+        <button id="downloadLogs" class="bg-green-500 text-white px-5 py-2 rounded-xl shadow hover:bg-green-600 transition font-semibold">Download Logs (CSV)</button>
+        <button id="downloadCodes" class="bg-purple-500 text-white px-5 py-2 rounded-xl shadow hover:bg-purple-600 transition font-semibold">Download Submitted Codes (ZIP)</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="./js/common.js"></script>
+  <script src="./js/exam-host.js"></script>
+</body>
+</html>
