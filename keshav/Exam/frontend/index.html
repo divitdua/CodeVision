@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVision</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.css">
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/mode/javascript/javascript.js"></script>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-purple-50 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white p-10 rounded-3xl shadow-2xl w-80 flex flex-col items-center space-y-8">
+    <h1 class="text-3xl font-extrabold text-gray-800 text-center">CodeVision</h1>
+
+    <div class="flex flex-col space-y-4 w-full">
+      <button 
+        onclick="goToCreate()"
+        class="w-full py-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition duration-300 font-semibold">
+        Create Room
+      </button>
+
+      <button 
+        onclick="goToJoin()"
+        class="w-full py-3 bg-green-500 text-white rounded-xl shadow-lg hover:bg-green-600 transition duration-300 font-semibold">
+        Join Room
+      </button>
+    </div>
+  </div>
+
+  <!-- Page-specific script -->
+  <script src="./js/index.js"></script>
+  <script src="./js/common.js"></script>
+</body>
+</html>
