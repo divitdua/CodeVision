@@ -11,27 +11,28 @@ async function joinRoom() {
   }
 
   try {
-    const userId = localStorage.getItem("userId");
+    // ✅ Use fallback userId in dev mode
+    let userId = localStorage.getItem("userId");
+    if (!userId) userId = "testUserId";
 
-    // Call backend API to join room (pass studentName too)
+    // Call backend API to join room
     const response = await apiPost(`/rooms/${roomId}/join`, {
-      userId,
-      studentName
+      userId // only send userId
     });
 
     console.log("Join response data:", response.data);
 
-    const room = response.data;
+    const room = response.data.room || response.data; // handle both formats
     const type = room?.type || "exam";
 
-    // Save locally
+    // Save student info locally
     localStorage.setItem("currentRoomId", roomId);
     localStorage.setItem("roomType", type);
     localStorage.setItem("studentName", studentName);
+
     console.log("Saved student name:", localStorage.getItem("studentName"));
 
-
-    // Redirect based on room type
+    // Redirect to student exam page
     window.location.href = "exam-student.html";
 
   } catch (err) {
@@ -40,3 +41,6 @@ async function joinRoom() {
     errorMsg.classList.remove("hidden");
   }
 }
+
+// Bind join button
+document.getElementById("joinBtn").addEventListener("click", joinRoom);

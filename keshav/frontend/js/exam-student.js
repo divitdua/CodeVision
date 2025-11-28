@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
+  // ✅ Temporary token
+  const token = localStorage.getItem("authToken");
   const roomId = localStorage.getItem("currentRoomId");
   const roomPass = localStorage.getItem("roomPass");
   const userName = localStorage.getItem("studentName") || "Student";
@@ -13,27 +14,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // Socket setup
   const socket = io("http://localhost:5000", { query: { roomId, token } });
 
-  // ✅ Ensure join-room is emitted after socket connects
   socket.on("connect", () => {
     console.log("🟢 Socket connected:", socket.id);
-
-    // Emit join-room
-    console.log("🧠 Emitting join-room", { roomId, role: "student", studentName: userName });
     socket.emit("join-room", { roomId, role: "student", studentName: userName });
-
-    // Safety: Re-emit after a short delay in case of timing issues
     setTimeout(() => {
-      console.log("🧠 Re-emitting join-room for safety");
       socket.emit("join-room", { roomId, role: "student", studentName: userName });
     }, 300);
+
+    saveLog("joined", "Student connected");
   });
 
-  // -------------------
-  // MONACO EDITOR SETUP
-  // -------------------
+  // MONACO EDITOR
   let editor;
   require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs" } });
   require(["vs/editor/editor.main"], function () {
+    // Default JavaScript code
     editor = monaco.editor.create(document.getElementById("editor"), {
       value: "// Start coding here...\n",
       language: "javascript",
@@ -42,21 +37,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // -------------------
   // LANGUAGE SWITCHER
-  // -------------------
   const languageSelect = document.getElementById("language");
   languageSelect.addEventListener("change", (e) => {
-    const lang = e.target.value;
     let monacoLang = "javascript";
-    if (lang === "python") monacoLang = "python";
-    if (lang === "cpp") monacoLang = "cpp";
+    let defaultCode = "// Start coding here...\n";
+
+    if (e.target.value === "python") {
+      monacoLang = "python";
+      defaultCode = "# Start coding here\n";
+    }
+    if (e.target.value === "cpp") {
+      monacoLang = "cpp";
+      defaultCode = "// Start coding here...\n";
+    }
+
     monaco.editor.setModelLanguage(editor.getModel(), monacoLang);
+    editor.setValue(defaultCode);
   });
 
-  // -------------------
-  // CHAT FUNCTIONALITY
-  // -------------------
+  // CHAT
   const chatBox = document.getElementById("chatBox");
   const chatInput = document.getElementById("chatInput");
   const sendChat = document.getElementById("sendChat");
@@ -75,16 +75,16 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 
-  // -------------------
   // RUN CODE
-  // -------------------
   document.getElementById("runCode").addEventListener("click", async () => {
     const code = editor.getValue();
     const language = languageSelect.value;
     const outputBox = document.getElementById("output");
     outputBox.textContent = "Running...";
     try {
-      const response = await axios.post("http://localhost:5000/api/run", { code, language }, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await axios.post("http://localhost:5000/api/run/run", { code, language }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       outputBox.textContent = response.data.output || "No output";
     } catch (error) {
       outputBox.textContent = "Error running code.";
@@ -92,27 +92,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // -------------------
   // SUBMIT CODE
-  // -------------------
-    document.getElementById("submitCode").addEventListener("click", async () => {
+  document.getElementById("submitCode").addEventListener("click", async () => {
     const code = editor.getValue();
     const language = languageSelect.value;
-    const studentName = localStorage.getItem("studentName") || "Unknown";
-
     try {
-      await axios.post(
-        `http://localhost:5000/api/exams/${roomId}/submit`,
-        {
-          code,
-          language,
-          studentName   // ✅ Send student name to backend
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-
+      await axios.post(`http://localhost:5000/api/exams/${roomId}/submit`, {
+        code,
+        language,
+        studentName: userName
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       alert("Code submitted successfully!");
     } catch (error) {
       alert("Failed to submit code.");
@@ -120,48 +111,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
-    // ====== STUDENT LOGGING ======
-
-  // Student joined (on socket connect)
-  socket.on("connect", () => {
-    saveLog("joined", "Student connected");
-  });
-
-  // When student closes tab / reloads
-  window.addEventListener("beforeunload", () => {
-    saveLog("left", "Student closed tab or refreshed");
-  });
-
-  // When student switches tab or minimizes
+  // STUDENT LOGGING
+  window.addEventListener("beforeunload", () => saveLog("left", "Student closed tab or refreshed"));
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      saveLog("tab-blur", "Student switched or minimized tab");
-    } else {
-      saveLog("tab-focus", "Student returned to tab");
-    }
+    saveLog(document.hidden ? "tab-blur" : "tab-focus", "Tab visibility changed");
   });
 
-  // // When student switches window (ALT + TAB)
-  // window.addEventListener("blur", () => {
-  //   saveLog("window-blur", "Window lost focus");
-  // });
-
-  // window.addEventListener("focus", () => {
-  //   saveLog("window-focus", "Window focused again");
-  // });
-
-  // ========= FIXED SAVE LOG FUNCTION =========
   function saveLog(action, data = "") {
-    socket.emit("log-event", {
-      roomId,
-      user: userName,
-      action,
-      data,
-      timestamp: new Date()
-    });
+    socket.emit("log-event", { roomId, user: userName, action, data, timestamp: new Date() });
   }
-
 });
-
-

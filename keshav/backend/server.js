@@ -10,9 +10,9 @@ dotenv.config();
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const logRoutes = require("./routes/logRoutes");
-const examRoutes = require("./routes/examRoutes");
-
 const Log = require("./models/Log");
+const runRoutes = require("./routes/runRoutes");
+const examRoutes = require("./routes/examRoutes"); 
 
 const app = express();
 const server = http.createServer(app);
@@ -31,6 +31,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/logs", logRoutes);
+app.use("/api/run", runRoutes); 
 app.use("/api/exams", examRoutes);
 
 // MongoDB connection

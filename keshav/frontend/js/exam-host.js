@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ✅ Use temporary token from common.js
+  const token = localStorage.getItem("authToken");
   const socket = io("http://localhost:5000");
-  const token = localStorage.getItem("token");
   const roomId = localStorage.getItem("roomId");
 
   const roomIdEl = document.getElementById("roomId");
@@ -45,25 +46,17 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 
-  // Logging
-    let logs = [];
+  // Logs
+  let logs = [];
+  function addHostLog(event) {
+    const logEntry = `${new Date().toLocaleTimeString()} - ${event}`;
+    logs.push(logEntry);
+    const li = document.createElement("li");
+    li.textContent = logEntry;
+    logsEl.appendChild(li);
+  }
 
-    // Only initial exam started log
-    function addHostLog(event) {
-      const logEntry = `${new Date().toLocaleTimeString()} - ${event}`;
-      logs.push(logEntry);
-      const li = document.createElement("li");
-      li.textContent = logEntry;
-      logsEl.appendChild(li);
-    }
-
-    // Add ONLY exam started
-    addHostLog("Exam started");
-
-    // Disable host blur/focus logs (to avoid clutter)
-    window.onblur = null;
-    window.onfocus = null;
-
+  addHostLog("Exam started"); // initial log
 
   downloadLogsBtn.addEventListener("click", () => {
     const csvContent = "data:text/csv;charset=utf-8," + logs.join("\n");
@@ -95,15 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-    // ===== REAL-TIME STUDENT LOGS FROM SERVER =====
-    socket.on("new-log", (log) => {
+  // Real-time student logs
+  socket.on("new-log", (log) => {
     const entry = `${log.user} | ${new Date(log.timestamp).toLocaleTimeString()} | ${log.action}`;
     logs.push(entry);
 
     const li = document.createElement("li");
     li.textContent = entry;
 
-    // 🔴 HIGHLIGHT SUSPICIOUS EVENTS
     const suspicious = ["window-blur", "tab-blur", "window-minimized", "focus-loss","tab-focus"];
     if (suspicious.includes(log.action)) {
       li.style.background = "rgba(255, 0, 0, 0.2)";
@@ -114,5 +106,4 @@ document.addEventListener("DOMContentLoaded", () => {
     logsEl.appendChild(li);
     logsEl.scrollTop = logsEl.scrollHeight;
   });
-
 });
