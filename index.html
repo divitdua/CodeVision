@@ -141,11 +141,11 @@
                     errorContainer.innerHTML = '';
                     form.reset(); // Clear the form
 
-                    // 4. Wait for 2 seconds (2000 milliseconds) then redirect
+                    // 4. Wait for 1 second (1000 milliseconds) then redirect
                     setTimeout(() => {
                         // Change this path if your Exam folder is located somewhere else relative to this file
                         window.location.href = "Exam/frontend/exam.html"; 
-                    }, 2000);
+                    }, 1000);
                 } else {
                     // Display error from server (e.g., "Email already exists")
                     successMsg.textContent = "Error: " + result.message;
