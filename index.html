@@ -2,43 +2,190 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Select Mode</title>
+  <title>Login Page</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 18px;
+            font-style: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            background-color: #0056b3;
+        } 
+
+        .error-messages {
+            color: #d9534f;
+            font-size: 13px;
+            margin-top: 5px;
+            padding: 0;
+            list-style-type: none;
+        }
+        .error-messages li {
+            margin-bottom: 3px;
+        }
+        .success-msg {
+            color: #28a745;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            margin-top: 15px;
+        }
+  
+  </style>
 </head>
+
 
 <body class="bg-gray-100 h-screen flex items-center justify-center">
 
   <div class="bg-white shadow-lg rounded-xl p-10 w-96 text-center">
     
     <h1 class="text-3xl font-bold mb-6 text-gray-800">
-      Choose Your Mode
+      LOGIN
     </h1>
 
-    <!-- Exam Mode -->
-    <button 
-      onclick="goToExam()"
-      class="w-full mb-4 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg text-lg font-semibold transition">
-      📝 Enter Exam Mode
-    </button>
+<div class="registration-container ">
+    
+    <form id="registrationForm">
+        <div class="form-group text-left">
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Choose a username" required>
+        </div>
+        
+        <div class="form-group text-left">
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
 
-    <!-- Collaborative Mode -->
-    <button 
-      onclick="goToCollab()"
-      class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold transition">
-      💬 Enter Collaborative Mode
-    </button>
+        <div class="form-group text-left">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Create a password" required>
+            <ul class="error-messages" id="passwordErrors"></ul>
+        </div>
 
-  </div>
+        <button type="submit" class="btn-submit">Register</button>
+        <div class="success-msg" id="successMessage">Registration Successful!</div>
+    </form>
+</div>
 
-  <script>
-    function goToExam() {
-      window.location.href = "Exam/frontend/index.html";  
+    
+
+ <script>
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const errorContainer = document.getElementById('passwordErrors');
+    const form = document.getElementById('registrationForm');
+    const successMsg = document.getElementById('successMessage');
+
+    // Real-time validation as the user types
+    passwordInput.addEventListener('input', function() {
+        validatePassword(this.value);
+    });
+
+    // Form submission validation
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent default page reload
+        
+        const errors = validatePassword(passwordInput.value);
+        
+        if (errors.length === 0) {
+            // 1. Gather the data
+            const userData = {
+                username: usernameInput.value,
+                email: emailInput.value,
+                password: passwordInput.value
+            };
+
+            try {
+                // 2. Send data to the Node.js API
+                const response = await fetch('http://localhost:5000/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const result = await response.json();
+
+                // 3. Handle the server response
+                if (response.ok) {
+                    successMsg.textContent = "Registration Successful!";
+                    successMsg.style.color = "#28a745"; // Green
+                    successMsg.style.display = 'block';
+                    errorContainer.innerHTML = '';
+                    form.reset(); // Clear the form
+
+                    // 4. Wait for 2 seconds (2000 milliseconds) then redirect
+                    setTimeout(() => {
+                        // Change this path if your Exam folder is located somewhere else relative to this file
+                        window.location.href = "Exam/frontend/exam.html"; 
+                    }, 2000);
+                } else {
+                    // Display error from server (e.g., "Email already exists")
+                    successMsg.textContent = "Error: " + result.message;
+                    successMsg.style.color = "#d9534f"; // Red
+                    successMsg.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error("Error connecting to server:", error);
+                successMsg.textContent = "Error connecting to server.";
+                successMsg.style.color = "#d9534f";
+                successMsg.style.display = 'block';
+            }
+
+        } else {
+            successMsg.style.display = 'none';
+        }
+    });
+
+    function validatePassword(password) {
+        let errors = [];
+        if (password.length < 8 || password.length > 15) errors.push("Must be between 8 and 15 characters.");
+        if (!/[0-9]/.test(password)) errors.push("Must contain at least one digit (0-9).");
+        if (!/[A-Z]/.test(password)) errors.push("Must contain at least one uppercase letter (A-Z).");
+        if (!/[a-z]/.test(password)) errors.push("Must contain at least one lowercase letter (a-z).");
+        if (!/[!@#$%&*()\-+=^]/.test(password)) errors.push("Must contain at least one special character (!@#$%&*()-+=^).");
+        if (/\s/.test(password)) errors.push("Must not contain any white spaces.");
+
+        errorContainer.innerHTML = '';
+        if (errors.length > 0) {
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = "✖ " + error;
+                errorContainer.appendChild(li);
+            });
+        }
+        return errors;
     }
 
-    function goToCollab() {
-      window.open("https://colla-codevision.netlify.app/");  
-    }
-  </script>
+</script>
 
 </body>
 </html>

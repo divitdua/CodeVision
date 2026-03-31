@@ -4,6 +4,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const http = require("http");
 const { Server } = require("socket.io");
+const bcrypt = require("bcryptjs");
 
 dotenv.config();
 
@@ -39,6 +40,56 @@ mongoose
   .connect("mongodb://127.0.0.1:27017/mydb")
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.log("❌ MongoDB error:", err));
+
+
+let User;
+try {
+  // Try to grab the already compiled model
+  User = mongoose.model('User');
+} catch (error) {
+  // If it doesn't exist, create it.
+  const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+  });
+  User = mongoose.model('User', userSchema);
+}
+
+ // Registration Endpoint
+app.post('/api/register', async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        if (existingUser) {
+            return res.status(400).json({ message: "Username or Email already exists!" });
+        }
+
+        // Hash the password for security
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create new user
+        const newUser = new User({
+            name: username,
+            username: username,
+            email: email,
+            password: hashedPassword
+        });
+
+        // Save to Database
+        await newUser.save();
+        res.status(201).json({ message: "User registered successfully!" });
+
+    } catch (error) {
+        console.error("Registration Error:", error);
+        res.status(500).json({ message: "Server error during registration." });
+    }
+});
+
 
 // Helper to save logs
 const saveLog = async (roomId, userName, action, data = "") => {
