@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - CodeVision</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-lg rounded-xl p-10 w-96 text-center">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">LOGIN</h1>
+
+    <form id="loginForm" class="text-left">
+        <div class="mb-4">
+            <label for="username" class="block text-gray-700 font-bold mb-2">Username:</label>
+            <input type="text" id="username" placeholder="Enter your username" required
+                   class="w-full padding-2 border border-gray-300 rounded focus:border-blue-500 outline-none p-2">
+        </div>
+
+        <div class="mb-6">
+            <label for="password" class="block text-gray-700 font-bold mb-2">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password" required
+                   class="w-full padding-2 border border-gray-300 rounded focus:border-blue-500 outline-none p-2">
+        </div>
+
+        <button type="submit" class="w-full py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition">
+            Login
+        </button>
+
+        <!-- Message Box -->
+        <div id="messageBox" class="hidden mt-4 text-center font-bold"></div>
+    </form>
+    
+    <p class="mt-4 text-sm text-gray-600">
+        Don't have an account? <a href="index.html" class="text-blue-500 hover:underline">Register here</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Stop page reload
+        
+        const usernameInput = document.getElementById('username').value;
+        const passwordInput = document.getElementById('password').value;
+        const messageBox = document.getElementById('messageBox');
+
+        try {
+            // 1. Send data to your new backend route
+            const response = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    username: usernameInput, 
+                    password: passwordInput 
+                })
+            });
+
+            const data = await response.json();
+
+            // 2. Handle the response
+            if (response.ok) {
+                messageBox.textContent = "Login Successful! Redirecting...";
+                messageBox.className = "mt-4 text-center font-bold text-green-600 block";
+
+                // 3. Save the crucial data to localStorage
+                localStorage.setItem("authToken", data.token); // The JWT
+                localStorage.setItem("studentName", data.username); // For your Join Room page
+                localStorage.setItem("userId", data.userId);
+
+                // 4. Redirect to the mode selection or exam page
+                setTimeout(() => {
+                    window.location.href = "Exam/frontend/create.html"; // Update path as needed
+                }, 1000);
+                
+            } else {
+                // Wrong password or username
+                messageBox.textContent = data.message;
+                messageBox.className = "mt-4 text-center font-bold text-red-600 block";
+            }
+
+        } catch (error) {
+            console.error("Error connecting to server:", error);
+            messageBox.textContent = "Error connecting to server.";
+            messageBox.className = "mt-4 text-center font-bold text-red-600 block";
+        }
+    });
+  </script>
+</body>
+</html>

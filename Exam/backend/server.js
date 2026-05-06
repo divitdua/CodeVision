@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const http = require("http");
 const { Server } = require("socket.io");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ const logRoutes = require("./routes/logRoutes");
 const Log = require("./models/Log");
 const runRoutes = require("./routes/runRoutes");
 const examRoutes = require("./routes/examRoutes"); 
+const User = require("./models/User");
+
 
 const app = express();
 const server = http.createServer(app);
@@ -42,20 +45,6 @@ mongoose
   .catch((err) => console.log("❌ MongoDB error:", err));
 
 
-let User;
-try {
-  // Try to grab the already compiled model
-  User = mongoose.model('User');
-} catch (error) {
-  // If it doesn't exist, create it.
-  const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
-  });
-  User = mongoose.model('User', userSchema);
-}
 
  // Registration Endpoint
 app.post('/api/register', async (req, res) => {
@@ -87,6 +76,46 @@ app.post('/api/register', async (req, res) => {
     } catch (error) {
         console.error("Registration Error:", error);
         res.status(500).json({ message: "Server error during registration." });
+    }
+});
+
+// --- Login Endpoint ---
+app.post("/api/login", async (req, res) => {
+    try {
+        // 1. Get data from the frontend
+        const { username, password } = req.body;
+
+        // 2. Find the user by username (or email if you prefer)
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ message: "Invalid username or password" });
+        }
+
+        // 3. Compare the typed password with the hashed password in the database
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid username or password" });
+        }
+
+        // 4. Create a secure token (Keep the secret key safe in your .env file!)
+        const secretKey = process.env.JWT_SECRET || "fallback_secret_dev_key";
+        const token = jwt.sign(
+            { userId: user._id, username: user.username }, 
+            secretKey, 
+            { expiresIn: "24h" } // Token expires in 24 hours
+        );
+
+        // 5. Send success response with the token and user data
+        res.status(200).json({ 
+            message: "Login successful!",
+            token: token,
+            userId: user._id,
+            username: user.username 
+        });
+
+    } catch (error) {
+        console.error("Login Error:", error);
+        res.status(500).json({ message: "Server error during login." });
     }
 });
 
